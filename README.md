@@ -1,146 +1,120 @@
-# NeurIPS 2021: MineRL BASALT Behavioral Cloning Baseline 
+# NeurIPS 2021: MineRL BASALT 行为克隆基线
 
 [![Discord](https://img.shields.io/discord/565639094860775436.svg)](https://discord.gg/BT9uegr)
 
-This repository provides an example of how to integrate a solution based on Behavioral Cloning into the submission kit 
-for the 2021 MineRL BASALT competition.
+本仓库提供了一个示例，展示如何将基于**行为克隆(Behavioral Cloning)**的解决方案集成到2021年MineRL BASALT竞赛的提交工具包中。
 
-MineRL BASALT is a competition on solving human-judged tasks. The tasks in this competition do not have a pre-defined reward function: the goal is to produce trajectories that are judged by real humans to be effective at solving a given task.
+MineRL BASALT是一个专注于解决人类评判任务的竞赛。该竞赛中的任务没有预定义的奖励函数：目标是产生被真实人类评判为能有效解决给定任务的轨迹。
 
-See [the homepage](https://minerl.io/basalt/) of the competition for further details.
+更多详情参见[竞赛主页](https://minerl.io/basalt/)。
 
-**This repository contains**:
-*  **Documentation** on how to submit your agent to the leaderboard
-*  **The procedure** for Round 1 and Round 2
-*  **Starter code** that uses the [imitation](https://github.com/HumanCompatibleAI/imitation/) implementation of Behavioral Cloning to train a simple agent.
+## 📦 本仓库包含内容
 
-**Other Resources**:
-- [AICrowd competition page](https://www.aicrowd.com/challenges/neurips-2021-minerl-basalt-competition) - Main registration page & leaderboard.
-- [MineRL Documentation](http://minerl.io/docs) - Documentation for the `minerl` package!
-- [Imitation Documentation](https://imitation.readthedocs.io/en/latest/) - Documentation for the `imitation` package, which 
-trains imitation-based models in the style of Stable Baselines 3 
-- [Sacred Documentation](https://sacred.readthedocs.io/en/stable/) - Documentation for the `sacred` package, which is used to 
-structure and define configurations for experiments 
+- **文档**：如何向排行榜提交你的智能体
+- **流程**：第一轮和第二轮的程序
+- **入门代码**：使用[imitation](https://github.com/HumanCompatibleAI/imitation/)实现的行为克隆来训练简单智能体
 
-# Code Structure 
-## basalt_utils 
-This section of the repo is structured as a small utility package, containing wrappers, tools, and compatibility wrappers 
-that allow us to more easily train on top of BASALT environments. It should be automatically installed by following the 
-setup instructions and originating a conda environment from `environment.yml`, but can also be installed manually by navigating 
-into the directory and calling `pip install .`
-## basalt_baselines 
-This section of the repo is where the actual logic of a Behavioral Cloning training procedure is laid out, specifically in 
-`basalt_baselines/bc.py`; other baselines are current works in progress.  
+## 🔗 其他资源
 
-The training procedure is structure as a Sacred experiment. The most salient things to know about this are: 
-1. Configuration values specified in the method decorated with `@bc_baseline.config` (in this case, `default_config`), 
-are automatically made available to any functions decorated with `@bc_baseline.capture`, `@bc_baseline.main`, or 
-`bc_baseline.automain`. 
-2. If you want to run the testing or training code directly, you can call `basalt_baselines/bc.py with mode='train'`
-or `with mode='test'`. You can also experiment with different configuration parameters on the command line by specifying 
-a new value of anything defined in the config method (mentioned in (1)). For example, you could call 
-`basalt_baselines.bc.py with batch_size=16` 
+- [AICrowd竞赛页面](https://www.aicrowd.com/challenges/neurips-2021-minerl-basalt-competition) - 主要注册页面和排行榜
+- [MineRL文档](http://minerl.io/docs) - `minerl`包的文档！
+- [Imitation文档](https://imitation.readthedocs.io/en/latest/) - `imitation`包的文档，以Stable Baselines 3风格训练基于模仿的模型
+- [Sacred文档](https://sacred.readthedocs.io/en/stable/) - `sacred`包的文档，用于结构化和定义实验配置
 
-This BC baseline is meant to be simple and minimal, and, as such, it tries to make the simplest design choices that allow 
-it to handle the structure of a Minecraft environment. These include: 
-- Extracting only the pixel POV observation, and using a CNN on that observation as the input to the BC model 
-- Turning the continuous camera action into discretely chunked left/right and up/down movements, since otherwise 
-the scale of the log likelihood for the continuous space swamps the discrete spaces 
-- Constructing separate action distributions for each of the actions that make up a joint Minecraft action (which can be
-a mix of Discrete and Box), and combining those action distributions into one MultiModalActionDistribution that is used 
-to predict the actions being predicted for BC (by sampling independently from each action space's distribution)
-- This action distribution architecture works by learning a single latent vector, and then feeding that representation 
-to a head mapping it into the parameters required by each action's distribution 
-# How to Submit a Model on AICrowd.
+# 🏗️ 代码结构
 
-In brief: you define your Python environment using Anaconda environment files, and AICrowd system will build a Docker image and run your code using the docker scripts inside the `utility` directory.
+## basalt_utils
+这部分仓库被构建为一个小型实用程序包，包含包装器、工具和兼容性包装器，使我们能够更轻松地在BASALT环境上进行训练。通过遵循设置说明并从`environment.yml`创建conda环境，它应该会自动安装，但也可以通过导航到目录并调用`pip install .`来手动安装。
 
-You submit pretrained models, the evaluation code and the training code. Training code should produce the same models you upload as part of your submission.
+## basalt_baselines
+这部分仓库是行为克隆训练过程实际逻辑所在的位置，具体在`basalt_baselines/bc.py`中；其他基线是当前正在进行的工作。
 
-Your evaluation code (`test_submission_code.py`) only needs to control the agent and accomplish the environment's task. The evaluation server will handle recording of videos.
+训练过程被构建为一个Sacred实验。关于这一点最需要注意的事情是：
+1. 在`@bc_baseline.config`装饰的方法中指定的配置值（在本例中为`default_config`），会自动提供给任何用`@bc_baseline.capture`、`@bc_baseline.main`或`bc_baseline.automain`装饰的函数。
+2. 如果你想直接运行测试或训练代码，你可以用`basalt_baselines/bc.py with mode='train'`或`with mode='test'`来调用。你还可以通过在命令行上指定配置方法中定义的任何内容的新值来实验不同的配置参数。例如，你可以调用`basalt_baselines.bc.py with batch_size=16`
 
-You specify tasks you want to submit agent for with `aicrowd.json` file, `tags` field (see below).
+这个BC基线旨在简单和最小化，因此，它尝试做出最简单的设计选择，使其能够处理Minecraft环境的结构。这些包括：
+- 仅提取像素POV观察，并在该观察上使用CNN作为BC模型的输入
+- 将连续相机动作转换为离散分块的左/右和上/下移动，因为否则连续空间的对数似然规模会淹没离散空间
+- 为构成联合Minecraft动作的每个动作构建单独的动作分布（可以是Discrete和Box的混合），并将这些动作分布组合成一个MultiModalActionDistribution，用于预测BC预测的动作（通过从每个动作空间的分布中独立采样）
+- 这种动作分布架构通过学习单个潜在向量，然后将该表示馈送到将其映射到每个动作分布所需参数的头部来工作
 
-## Setup
-1.  **Clone the github repository** or press the "Use this Template" button on GitHub!
+# 🚀 如何在AICrowd上提交模型
 
-    ```
-    git clone https://github.com/minerllabs/basalt_competition_baseline_submissions.git
-    ```
+简要说明：你使用Anaconda环境文件定义你的Python环境，AICrowd系统将构建一个Docker镜像并使用`utility`目录中的docker脚本运行你的代码。
 
-2. **Install** the Java JDK! **Make sure you have the [JDK 8 installed first](http://minerl.io/docs/tutorials/getting_started.html)!**
-    -> Go to http://minerl.io/docs/tutorials/getting_started.html
+你提交预训练模型、评估代码和训练代码。训练代码应该产生与你作为提交一部分上传的相同模型。
 
+你的评估代码（`test_submission_code.py`）只需要控制智能体并完成环境的任务。评估服务器将处理视频录制。
 
+你使用`aicrowd.json`文件、`tags`字段指定要提交智能体的任务（见下文）。
 
-3. **Specify** your specific submission dependencies (PyTorch, Tensorflow, etc)
+## 🔧 设置
 
-    * **Anaconda Environment**. To run this baseline code on your local machine, you will need to
-     create an environment with the correct dependencies on your local machine. We recommend `anaconda` for this 
-     purpose, and have included an `environment.yml` file specifying necessary dependencies to run our BC baseline. 
-     Make sure at least version `4.5.11`  of `anaconda` is installed (By following instructions [here](https://www.anaconda.com/download)). 
-     
-     Also, if you are not on a machine with NVIDIA drivers that can support `cudatoolkit=10.2`, remove that dependency 
-     from the `environment.yml` file before trying to install. Then:
-     
-      * **Create your new conda environment**
-       Use the following command: 
-            ```
-            conda-env create -f environment.yml
-            conda activate basalt
-            ```
-            
-          This will install the `minerl` environment (containing all of the competition environments), as well as 
-          dependencies used in the training of the baselines themselves. 
+### 1. 克隆仓库
+```bash
+git clone https://github.com/minerllabs/basalt_competition_baseline_submissions.git
+```
 
-      * **Your code specific dependencies**
-        Add your own dependencies to the `environment.yml` file. **Remember to add any additional channels**. PyTorch requires the channel `pytorch`, for example.
-        You can also install them locally using
-        ```sh
-        conda install <your-package>
-        ```
+### 2. 安装Java JDK！
+**确保你首先安装了[JDK 8](http://minerl.io/docs/tutorials/getting_started.html)！**
+-> 访问 http://minerl.io/docs/tutorials/getting_started.html
 
-    * **Pip Packages** If you need pip packages (not on conda), you can add them to the `environment.yml` file (see the currently populated version):
+### 3. 指定你的特定提交依赖项（PyTorch、Tensorflow等）
 
-    * **Apt Packages** If your training procedure or agent depends on specific Debian (Ubuntu, etc.) packages, add them to `apt.txt`.
-    
+#### Anaconda环境
+要在本地机器上运行此基线代码，你需要在本地机器上创建具有正确依赖项的环境。我们为此目的推荐`anaconda`，并包含了指定运行我们的BC基线所需依赖项的`environment.yml`文件。确保安装了至少版本`4.5.11`的`anaconda`（通过遵循[此处](https://www.anaconda.com/download)的说明）。
 
+如果你的机器没有可以支持`cudatoolkit=10.2`的NVIDIA驱动程序，请在尝试安装之前从`environment.yml`文件中删除该依赖项。然后：
 
-These files are used to construct both the **local and AICrowd docker containers** in which your agent will train. 
+**创建新的conda环境**
+使用以下命令：
+```bash
+conda-env create -f environment.yml
+conda activate basalt
+```
 
-If above are too restrictive for defining your environment, see [this Discourse topic for more information](https://discourse.aicrowd.com/t/how-to-specify-runtime-environment-for-your-submission/2274).
+这将安装`minerl`环境（包含所有竞赛环境），以及用于基线训练本身的依赖项。
 
-### Common Setup Issues 
-- Some users reported having issues installing this set of dependencies on Mac, and hit some variant of [this error](https://stackoverflow.com/questions/53014306/error-15-initializing-libiomp5-dylib-but-found-libiomp5-dylib-already-initial). Our 
-current belief is that this is a system-level setup issue, and there is not a single solution that works for all Mac OS versions and CUDA versions, 
-which is why we do not provide a specific suggested workaround here. 
-- If you're running the test code on a machine that doesn't have a native display (like a headless linux server
-you're connecting to via SSH), we recommend installing `xvfb` and running code according to the pattern 
-of `xvfb-run -a python test_framework.py`). If you hit an error that resembles the following, 
-we recommend following the instructions in [this blog post](https://davidsanwald.github.io/2016/11/13/building-tensorflow-with-gpu-support.html) for installing 
-CUDA without GL options. 
+**你的代码特定依赖项**
+将你自己的依赖项添加到`environment.yml`文件中。**记得添加任何额外的通道**。例如，PyTorch需要`pytorch`通道。
+你也可以使用以下命令在本地安装它们：
+```bash
+conda install <your-package>
+```
+
+#### Pip包
+如果你需要pip包（不在conda上），你可以将它们添加到`environment.yml`文件中（参见当前填充的版本）：
+
+#### Apt包
+如果你的训练过程或智能体依赖于特定的Debian（Ubuntu等）包，将它们添加到`apt.txt`。
+
+这些文件用于构建**本地和AICrowd docker容器**，你的智能体将在其中训练。
+
+如果上述内容对于定义你的环境过于限制，请参见[此Discourse主题以获取更多信息](https://discourse.aicrowd.com/t/how-to-specify-runtime-environment-for-your-submission/2274)。
+
+### 常见设置问题
+- 一些用户报告在Mac上安装这组依赖项时遇到问题，并遇到了[此错误](https://stackoverflow.com/questions/53014306/error-15-initializing-libiomp5-dylib-but-found-libiomp5-dylib-already-initial)的某些变体。我们目前的看法是，这是一个系统级设置问题，并且没有一个适用于所有Mac OS版本和CUDA版本的单一解决方案，这就是为什么我们在这里不提供具体建议的解决方法。
+- 如果你在没有原生显示的机器上运行测试代码（比如通过SSH连接的headless linux服务器），我们建议安装`xvfb`并按照`xvfb-run -a python test_framework.py`的模式运行代码。如果你遇到类似于以下内容的错误，我们建议按照[此博客文章](https://davidsanwald.github.io/2016/11/13/building-tensorflow-with-gpu-support.html)中的说明安装没有GL选项的CUDA。
 ```
 There was an error with Malmo"/"No OpenGL context found"/"Couldn't set pixel formal"
 ```
 
+## 📁 代码结构应该是什么样的？
 
+请遵循入门工具包中共享的示例结构进行代码结构。
 
-
-## What should my code structure be like ?
-
-Please follow the example structure shared in the starter kit for the code structure.
-The different files and directories have following meaning:
-
+不同的文件和目录具有以下含义：
 ```
 .
-├── aicrowd.json             # Submission meta information like your username
-├── apt.txt                  # Packages to be installed inside docker image
-├── data                     # The downloaded data, the path to directory is also available as `MINERL_DATA_ROOT` env variable
-├── test_submission_code.py  # IMPORTANT: Your testing/inference phase code. NOTE: This is NOT the the entry point for testing phase!
-├── train                    # Your trained model MUST be saved inside this directory
-├── train_submission_code.py # IMPORTANT: Your training code. Running this should produce the same agent as you upload as part of the agent.
-├── test_framework.py        # The entry point for the testing phase, which sets up the environment. Your code DOES NOT go here.
-└── utility                  # The utility scripts which provide a smoother experience to you.
+├── aicrowd.json             # 提交元信息，如你的用户名
+├── apt.txt                  # 要在docker镜像内安装的包
+├── data                     # 下载的数据，目录路径也可作为`MINERL_DATA_ROOT`环境变量
+├── test_submission_code.py  # 重要：你的测试/推理阶段代码。注意：这不是测试阶段的入口点！
+├── train                    # 你的训练模型必须保存在此目录中
+├── train_submission_code.py # 重要：你的训练代码。运行这应该产生与你作为智能体一部分上传的相同智能体。
+├── test_framework.py        # 测试阶段的入口点，设置环境。你的代码不放在这里。
+└── utility                  # 为你提供更流畅体验的实用程序脚本。
     ├── debug_build.sh
     ├── docker_run.sh
     ├── environ.sh
@@ -150,90 +124,87 @@ The different files and directories have following meaning:
     └── verify_or_download_data.sh
 ```
 
-Finally, **you must specify an AIcrowd submission JSON in `aicrowd.json` to be scored!** 
+最后，**你必须在`aicrowd.json`中指定AIcrowd提交JSON才能被评分！**
 
-The `aicrowd.json` of each submission should contain the following content:
-
+每个提交的`aicrowd.json`应包含以下内容：
 ```json
 {
   "challenge_id": "neurips-2021-minerl-basalt-competition",
   "authors": ["your-aicrowd-username"],
-  "description": "sample description about your awesome agent",
+  "description": "关于你的优秀智能体的示例描述",
   "tags": "FindCave",
   "license": "MIT",
   "gpu": false
 }
 ```
 
-This JSON is used to map your submission to the said challenge, so please remember to use the correct `challenge_id` as specified above.
+此JSON用于将你的提交映射到所述挑战，所以请记住使用如上指定的正确`challenge_id`。
 
-You **need to** specify the task of the submission with the `tags` field with one of the following: `{"FindCave", "MakeWaterfall", "CreateVillageAnimalPen", "BuildVillageHouse"}`. You need to create one submission per task to cover all tasks.
+你需要使用`tags`字段指定提交的任务，使用以下之一：`{"FindCave", "MakeWaterfall", "CreateVillageAnimalPen", "BuildVillageHouse"}`。你需要为每个任务创建一个提交以覆盖所有任务。
 
-Please specify if your code will use a GPU or not for the evaluation of your model. If you specify `true` for the GPU, a **NVIDIA Tesla K80 GPU** will be provided and used for the evaluation.
+请指定你的代码是否将使用GPU进行模型评估。如果你在GPU中指定`true`，将提供并使用**NVIDIA Tesla K80 GPU**进行评估。
 
-### Dataset location
+### 数据集位置
 
-You **don't** need to upload the MineRL dataset in submission and it will be provided in online submissions at `MINERL_DATA_ROOT` path, should you need it. For local training and evaluations, you can download it once in your system via `python ./utility/verify_or_download_data.py` or place manually into the `./data/` folder.
+你**不需要**在提交中上传MineRL数据集，它将在在线提交中在`MINERL_DATA_ROOT`路径提供，如果你需要的话。对于本地训练和评估，你可以通过`python ./utility/verify_or_download_data.py`在你的系统中下载一次，或手动放置到`./data/`文件夹中。
 
-## How to submit!
+## 📤 如何提交！
 
-To make a submission, you will have to create a private repository on [https://gitlab.aicrowd.com/](https://gitlab.aicrowd.com/).
+要进行提交，你需要在[https://gitlab.aicrowd.com/](https://gitlab.aicrowd.com/)上创建一个私有仓库。
 
-You will have to add your SSH Keys to your GitLab account by following the instructions [here](https://docs.gitlab.com/ee/gitlab-basics/create-your-ssh-keys.html).
-If you do not have SSH Keys, you will first need to [generate one](https://docs.gitlab.com/ee/ssh/README.html#generating-a-new-ssh-key-pair).
+你需要按照[此处](https://docs.gitlab.com/ee/gitlab-basics/create-your-ssh-keys.html)的说明将SSH密钥添加到GitLab账户。
+如果你没有SSH密钥，你首先需要[生成一个](https://docs.gitlab.com/ee/ssh/README.html#generating-a-new-ssh-key-pair)。
 
-Then you can create a submission by making a _tag push_ to your repository on [https://gitlab.aicrowd.com/](https://gitlab.aicrowd.com/).
-**Any tag push (where the tag name begins with "submission-") to your private repository is considered as a submission**  
-Then you can add the correct git remote, and finally submit by doing :
+然后你可以通过在[https://gitlab.aicrowd.com/](https://gitlab.aicrowd.com/)上的仓库进行_tag push_来创建提交。
+**任何标签推送（标签名称以"submission-"开头）到你的私有仓库都被视为提交**
 
-```
+然后你可以添加正确的git远程端点，最后通过以下方式提交：
+```bash
 cd competition_submission_starter_template
-# Add AIcrowd git remote endpoint
+# 添加AIcrowd git远程端点
 git remote add aicrowd git@gitlab.aicrowd.com:<YOUR_AICROWD_USER_NAME>/basalt_competition_submission_template.git
 git push aicrowd master
 
-# Create a tag for your submission and push
+# 为你的提交创建标签并推送
 git tag submission-v0.1
 git push aicrowd master
 git push aicrowd submission-v0.1
 
-# Note : If the contents of your repository (latest commit hash) does not change,
-# then pushing a new tag will **not** trigger a new evaluation.
+# 注意：如果你的仓库内容（最新提交哈希）没有改变，
+# 那么推送新标签将**不会**触发新的评估。
 ```
 
-You now should be able to see the details of your submission at: `https://gitlab.aicrowd.com/<YOUR_AICROWD_USER_NAME>/basalt_competition_submission_template/issues/`
+你现在应该能够在以下位置看到你的提交详情：`https://gitlab.aicrowd.com/<YOUR_AICROWD_USER_NAME>/basalt_competition_submission_template/issues/`
 
-**Best of Luck** :tada: :tada:
+**祝你好运** :tada: :tada:
 
-# Ensuring that your code works.
+## ✅ 确保你的代码有效
 
-You can perform local training and evaluation using utility scripts shared in this directory. To mimic the online training phase you can run `./utility/train_locally.sh` from the repository root, you can specify `--verbose` for complete logs.
+你可以使用本目录中共享的实用程序脚本执行本地训练和评估。要模拟在线训练阶段，你可以从仓库根目录运行`./utility/train_locally.sh`，你可以指定`--verbose`以查看完整日志。
 
-For local evaluation of your code, you can use `./utility/evaluation_locally.sh`, add `--verbose` if you want to view complete logs. **Note** that you do not need to record videos in your code! AICrowd server will handle this. Your code only needs to play the games.
+对于代码的本地评估，你可以使用`./utility/evaluation_locally.sh`，如果你想查看完整日志，请添加`--verbose`。**注意**你不需要在你的代码中录制视频！AICrowd服务器将处理这个问题。你的代码只需要玩游戏。
 
-For running/testing your submission in a docker environment (identical to the online submission), you can use `./utility/docker_train_locally.sh` and `./utility/docker_evaluation_locally.sh`. You can also run docker image with bash entrypoint for debugging on the go with the help of `./utility/docker_run.sh`. These scripts respect following parameters:
+要在docker环境（与在线提交相同）中运行/测试你的提交，你可以使用`./utility/docker_train_locally.sh`和`./utility/docker_evaluation_locally.sh`。你还可以使用`./utility/docker_run.sh`的帮助，使用bash入口点运行docker镜像进行调试。这些脚本尊重以下参数：
 
-* `--no-build`: To skip docker image build and use the last build image
-* `--nvidia`: To use `nvidia-docker` instead of `docker` which include your nvidia related drivers inside docker image
+* `--no-build`: 跳过docker镜像构建并使用上次构建的镜像
+* `--nvidia`: 使用`nvidia-docker`而不是`docker`，这会在docker镜像中包含你的nvidia相关驱动程序
 
+# 👥 团队
 
-# Team
+快速入门工具包由[Anssi Kanervisto](https://github.com/Miffyli)和[Shivam Khandelwal](https://twitter.com/skbly7)编写，[William H. Guss](http://wguss.ml)提供帮助。
 
-The quick-start kit was authored by 
-[Anssi Kanervisto](https://github.com/Miffyli) and [Shivam Khandelwal](https://twitter.com/skbly7) with help from [William H. Guss](http://wguss.ml)
+BASALT竞赛由以下团队组织：
 
-The BASALT competition is organized by the following team:
-
-* [Rohin Shah](https://rohinshah.com) (UC Berkeley)
-* Cody Wild (UC Berkeley)
-* Steven H. Wang (UC Berkeley)
-* Neel Alex (UC Berkeley)
-* Brandon Houghton (OpenAI and Carnegie Mellon University)
-* [William H. Guss]((http://wguss.ml)) (OpenAI and Carnegie Mellon University)
-* Sharada Mohanty (AIcrowd)
-* Anssi Kanervisto (University of Eastern Finland)
-* [Stephanie Milani](https://stephmilani.github.io/) (Carnegie Mellon University)
-* Nicholay Topin (Carnegie Mellon University)
-* Pieter Abbeel (UC Berkeley)
-* Stuart Russell (UC Berkeley)
-* Anca Dragan (UC Berkeley)
+* [Rohin Shah](https://rohinshah.com)（加州大学伯克利分校）
+* Cody Wild（加州大学伯克利分校）
+* Steven H. Wang（加州大学伯克利分校）
+* Neel Alex（加州大学伯克利分校）
+* Brandon Houghton（OpenAI和卡内基梅隆大学）
+* [William H. Guss](http://wguss.ml)（OpenAI和卡内基梅隆大学）
+* Sharada Mohanty（AIcrowd）
+* Anssi Kanervisto（东芬兰大学）
+* [Stephanie Milani](https://stephmilani.github.io/)（卡内基梅隆大学）
+* Nicholay Topin（卡内基梅隆大学）
+* Pieter Abbeel（加州大学伯克利分校）
+* Stuart Russell（加州大学伯克利分校）
+* Anca Dragan（加州大学伯克利分校）

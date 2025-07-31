@@ -1,9 +1,10 @@
+# System packages required for basalt competition
 curl
 git
 vim
 ssh
 gcc
-python-dev
+python3-dev
 libsm6
 libxext6
 libxrender-dev
@@ -13,5 +14,5 @@ xvfb
 x11vnc
 freeglut3-dev
 libx11-6
-python-opengl
-x11-xserver-utils
+python3-opengl
+x11-xserver-utils 

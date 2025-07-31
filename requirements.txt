@@ -1,0 +1,46 @@
+# 自定义游戏AI学习系统 - Python依赖包
+# 使用uv管理虚拟环境: uv venv && uv pip install -r requirements.txt
+# 系统包如curl、git、vim等应通过系统包管理器安装
+
+# === 核心AI框架 ===
+torch>=2.0.0                    # PyTorch深度学习框架
+torchvision>=0.15.0            # PyTorch视觉处理库
+numpy>=1.24.0                  # 数值计算库
+
+# === 游戏环境接口 ===
+gym>=0.26.0                    # 强化学习环境标准接口
+opencv-python>=4.7.0           # 计算机视觉处理
+
+# === 可选游戏环境 ===
+# 如果保留MineRL支持，取消注释:
+# minerl>=0.4.4                # MineRL环境接口（可选）
+
+# === 数据处理和可视化 ===
+matplotlib>=3.6.0              # 数据可视化
+pandas>=1.5.0                  # 数据处理和分析
+pillow>=9.0.0                  # 图像处理
+
+# === 日志和监控 ===
+tensorboard>=2.12.0            # 训练过程可视化
+tqdm>=4.64.0                   # 进度条显示
+rich>=13.0.0                   # 美化终端输出
+
+# === 开发工具 ===
+pytest>=7.0.0                  # 单元测试
+black>=22.0.0                  # 代码格式化
+isort>=5.10.0                  # 导入排序
+flake8>=5.0.0                  # 代码质量检查
+
+# === 实用工具 ===
+pyyaml>=6.0                    # YAML配置文件处理
+click>=8.0.0                   # 命令行接口
+joblib>=1.2.0                  # 并行计算和模型保存
+
+# === 可选依赖 ===
+# 如果使用wandb进行实验跟踪:
+# wandb>=0.15.0                # 实验管理和可视化
+
+# === 兼容性说明 ===
+# 所有依赖包均支持Python 3.8-3.12
+# 使用uv管理环境: python -m pip install uv && uv venv && uv pip install -r requirements.txt
+# 或使用: pip install -r requirements.txt
